@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import edu.wisc.my.keyvalue.service.IKeyValueService;
 
 @Controller
-
 public class KeyValueStoreController{
     
     private IKeyValueService keyValueService;
@@ -24,6 +23,18 @@ public class KeyValueStoreController{
     @Autowired
     public void setKeyValueService(IKeyValueService keyValueService){
         this.keyValueService = keyValueService;
+    }
+    
+    @RequestMapping("/")
+    public @ResponseBody void index(HttpServletRequest request, HttpServletResponse response){
+        try {
+            response.getWriter().write("Hello World");
+            response.setContentType("application/json");
+            response.setStatus(HttpServletResponse.SC_OK);
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
     }
     
     
