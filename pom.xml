@@ -3,8 +3,8 @@
     xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>org.springframework</groupId>
-    <artifactId>gs-spring-boot</artifactId>
+    <groupId>edu.wisc.my</groupId>
+    <artifactId>key-value-store</artifactId>
     <version>0.1.0</version>
 
     <parent>
@@ -12,6 +12,8 @@
       <artifactId>spring-boot-starter-parent</artifactId>
       <version>1.2.5.RELEASE</version>
     </parent>
+    
+    <packaging>war</packaging>
 
     <repositories>
       <repository>
@@ -43,6 +45,11 @@
         <artifactId>spring-boot-starter-data-jpa</artifactId>
       </dependency>
       <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-tomcat</artifactId>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
         <groupId>org.hsqldb</groupId>
         <artifactId>hsqldb</artifactId>
         <scope>runtime</scope>
@@ -54,6 +61,16 @@
         <plugin>
           <groupId>org.springframework.boot</groupId>
           <artifactId>spring-boot-maven-plugin</artifactId>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.tomcat.maven</groupId>
+          <artifactId>tomcat7-maven-plugin</artifactId>
+          <version>2.2</version>
+          <configuration>
+            <url>http://localhost:8080/manager/text</url>
+            <server>TomcatServer</server>
+            <path>/keyValueStore</path>
+          </configuration>
         </plugin>
       </plugins>
     </build>
