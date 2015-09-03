@@ -16,7 +16,6 @@
         <connection>scm:git:git://github.com:UW-Madison-DoIT/KeyValueStore.git</connection>
         <developerConnection>scm:git:git@github.com:UW-Madison-DoIT/KeyValueStore.git</developerConnection>
         <url>https://github.com/UW-Madison-DoIT/KeyValueStore</url>
-        <tag>HEAD</tag>
     </scm>
     
     <packaging>war</packaging>
