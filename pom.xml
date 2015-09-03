@@ -16,6 +16,10 @@
     <packaging>war</packaging>
 
     <repositories>
+       <repository>
+        <id>code.doit-uw-3rd-party</id>
+        <url>https://code.doit.wisc.edu/maven/content/repositories/uw-3rd-party/</url>
+      </repository>
       <repository>
         <id>spring-releases</id>
         <name>Spring Releases</name>
@@ -26,12 +30,17 @@
         <name>JBoss Maven Release Repository</name>
         <url>https://repository.jboss.org/nexus/content/repositories/releases</url>
       </repository>
+      
     </repositories>
     <pluginRepositories>
       <pluginRepository>
         <id>spring-releases</id>
         <name>Spring Releases</name>
         <url>https://repo.spring.io/libs-release</url>
+      </pluginRepository>
+      <pluginRepository>
+        <id>code.doit-uw-3rd-party</id>
+        <url>https://code.doit.wisc.edu/maven/content/repositories/uw-3rd-party/</url>
       </pluginRepository>
     </pluginRepositories>
 
@@ -54,6 +63,11 @@
         <artifactId>hsqldb</artifactId>
         <scope>runtime</scope>
       </dependency>
+      <dependency>
+        <groupId>com.oracle</groupId>
+        <artifactId>ojdbc6</artifactId>
+        <version>11.2.0.3</version>
+      </dependency> 
     </dependencies>
 
     <build>
