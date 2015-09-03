@@ -97,13 +97,14 @@
     </build>
     
     <distributionManagement>
-      <repository>
-        <id>code.doit-public-releases</id>
-        <url>https://code.doit.wisc.edu/maven/content/repositories/public-releases/</url>
-      </repository>
       <snapshotRepository>
         <id>code.doit-public-snapshots</id>
         <url>https://code.doit.wisc.edu/maven/content/repositories/public-snapshots/</url>
       </snapshotRepository>
+      <repository>
+        <id>code.doit-public-releases</id>
+        <url>https://code.doit.wisc.edu/maven/content/repositories/public-releases/</url>
+      </repository>
+      
     </distributionManagement>
 </project>
