@@ -5,7 +5,7 @@
 
     <groupId>edu.wisc.my</groupId>
     <artifactId>key-value-store</artifactId>
-    <version>0.1.0</version>
+    <version>0.1.0-SNAPSHOT</version>
 
     <parent>
       <groupId>org.springframework.boot</groupId>
@@ -14,8 +14,8 @@
     </parent>
     
     <scm>
-        <connection>scm:git@github.com:UW-Madison-DoIT/KeyValueStore.git</connection>
-        <developerConnection>scm:git@github.com:UW-Madison-DoIT/KeyValueStore.git</developerConnection>
+        <connection>scm:git:git://github.com:UW-Madison-DoIT/KeyValueStore.git</connection>
+        <developerConnection>scm:git:git@github.com:UW-Madison-DoIT/KeyValueStore.git</developerConnection>
         <url>https://github.com/UW-Madison-DoIT/KeyValueStore</url>
         <tag>HEAD</tag>
     </scm>
