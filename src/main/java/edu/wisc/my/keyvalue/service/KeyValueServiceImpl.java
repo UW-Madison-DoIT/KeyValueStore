@@ -18,7 +18,8 @@ public class KeyValueServiceImpl implements IKeyValueService{
 
     @Override
     public String getValue(String username, String key) {
-        return keyValueRepository.findByKey(username+":"+key).getValue();
+        KeyValue keyValue = keyValueRepository.findByKey(username+":"+key);
+        return keyValue!=null ? keyValue.getValue() : "";
     }
 
     @Override
