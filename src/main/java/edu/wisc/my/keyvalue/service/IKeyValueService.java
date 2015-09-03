@@ -9,7 +9,7 @@ public interface IKeyValueService{
      * Returns the value for a given key and username
      * @param username
      * @param key
-     * @return may return null if nothing exists
+     * @return may return empty string if nothing exists
      */
     public String getValue(String username, String key);
     
