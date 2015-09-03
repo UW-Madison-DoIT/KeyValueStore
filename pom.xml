@@ -65,12 +65,6 @@
         <artifactId>spring-boot-starter-tomcat</artifactId>
         <scope>provided</scope>
       </dependency>
-    <dependency>
-        <groupId>org.json</groupId>
-        <artifactId>json</artifactId>
-        <!-- Dont user newer version until we use java 8 -->
-        <version>20140107</version>
-    </dependency>
       <dependency>
         <groupId>org.json</groupId>
         <artifactId>json</artifactId>
