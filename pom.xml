@@ -99,11 +99,11 @@
     <distributionManagement>
       <snapshotRepository>
         <id>code.doit-uw-snapshots</id>
-        <url>https://code.doit.wisc.edu/maven/content/repositories/public-snapshots/</url>
+        <url>https://code.doit.wisc.edu/maven/content/repositories/uw-snapshots/</url>
       </snapshotRepository>
       <repository>
         <id>code.doit-uw-releases</id>
-        <url>https://code.doit.wisc.edu/maven/content/repositories/public-releases/</url>
+        <url>https://code.doit.wisc.edu/maven/content/repositories/uw-releases/</url>
       </repository>
       
     </distributionManagement>
