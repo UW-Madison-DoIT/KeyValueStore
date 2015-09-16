@@ -2,7 +2,7 @@
 
 [![Build Status](https://travis-ci.org/UW-Madison-DoIT/KeyValueStore.svg)](https://travis-ci.org/UW-Madison-DoIT/KeyValueStore)
 
-A seperate service to enable key value storage for MyUW applications
+A separate service to enable key value storage for MyUW applications
 
 Requirement : hsql database running on 8887 with database named uPortal (todo: make better)
 
