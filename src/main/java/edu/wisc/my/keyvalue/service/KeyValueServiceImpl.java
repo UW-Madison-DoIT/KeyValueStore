@@ -30,5 +30,10 @@ public class KeyValueServiceImpl implements IKeyValueService{
         keyValueRepository.save(keyValue);
         return "Saved?";
     }
+
+    @Override
+    public void delete(String username, String key) {
+      keyValueRepository.delete(new KeyValue(username+":"+key));
+    }
     
 }

@@ -22,4 +22,6 @@ public interface IKeyValueService{
      */
     public String setValue(String username, String key, String value);
     
+    public void delete(String username, String key);
+    
 }

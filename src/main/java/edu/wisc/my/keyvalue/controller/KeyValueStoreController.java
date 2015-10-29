@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -41,7 +42,7 @@ public class KeyValueStoreController{
     @RequestMapping("/")
     public @ResponseBody void index(HttpServletRequest request, HttpServletResponse response){
         try {
-            response.getWriter().write("Hello World");
+            response.getWriter().write("Hi there");
             response.setContentType("application/json");
             response.setStatus(HttpServletResponse.SC_OK);
         } catch (IOException e) {
@@ -51,8 +52,8 @@ public class KeyValueStoreController{
     }
     
     
-    @RequestMapping(value="/getValue", method=RequestMethod.GET)
-    public @ResponseBody void getKeyValue(HttpServletRequest request, HttpServletResponse response, @RequestParam String key){
+    @RequestMapping(value="/{key}", method=RequestMethod.GET)
+    public @ResponseBody void getKeyValue(HttpServletRequest request, HttpServletResponse response, @PathVariable String key){
         String username = request.getHeader(usernameAttribute);
         String value = keyValueService.getValue(username, key);
         try {
@@ -65,13 +66,26 @@ public class KeyValueStoreController{
         }
     }
     
-    @RequestMapping(value="/setValue", method=RequestMethod.POST)
-    public @ResponseBody void setKeyValue(HttpServletRequest request, HttpServletResponse response, @RequestBody String keyValuePair){
+    @RequestMapping(value="/{key}", method=RequestMethod.PUT)
+    public @ResponseBody void setKeyValue(HttpServletRequest request, HttpServletResponse response, @PathVariable String key, @RequestBody String valueJson){
         String username = request.getHeader(usernameAttribute);
-        JSONObject jsonObj = new JSONObject(keyValuePair);
-        String key = jsonObj.getString("key");
+        JSONObject jsonObj = new JSONObject(valueJson);
         String value = jsonObj.getString("value");
         keyValueService.setValue(username, key, value);
+        try {
+          response.getWriter().write(jsonObj.toString());
+        } catch (IOException e) {
+          logger.error("Issues happened while trying to write json", e);
+          response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+        }
         response.setStatus(HttpServletResponse.SC_OK);
     }
+    
+    @RequestMapping(value="/{key}", method=RequestMethod.DELETE)
+    public @ResponseBody void delete(HttpServletRequest request, HttpServletResponse response, @PathVariable String key){
+        String username = request.getHeader(usernameAttribute);
+        keyValueService.delete(username, key);
+        response.setStatus(HttpServletResponse.SC_OK);
+    }
+    
 }

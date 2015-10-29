@@ -6,6 +6,12 @@ import javax.persistence.Id;
 
 @Entity
 public class KeyValue{
+  
+    public KeyValue() {}
+    
+    public KeyValue(String key) {
+      this.key = key;
+    }
     
     @Id
     private String key;

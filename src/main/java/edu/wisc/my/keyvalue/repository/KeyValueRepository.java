@@ -11,4 +11,6 @@ public interface KeyValueRepository extends Repository<KeyValue, Long>{
     
     public KeyValue save(KeyValue keyValue);
     
+    public KeyValue delete(KeyValue Key);
+    
 }
