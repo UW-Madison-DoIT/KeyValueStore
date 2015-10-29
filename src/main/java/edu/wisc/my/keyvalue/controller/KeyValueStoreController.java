@@ -5,6 +5,8 @@ import java.io.IOException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -58,7 +60,6 @@ public class KeyValueStoreController{
     
     @RequestMapping(value="/{key}", method=RequestMethod.GET)
     public @ResponseBody void getKeyValue(HttpServletRequest request, HttpServletResponse response, @PathVariable String key){
-        JSONObject responseObj = new JSONObject();
         String username = request.getHeader(usernameAttribute);
         if(username == null) {
           logger.error(ACCESS_ERROR);
@@ -67,8 +68,16 @@ public class KeyValueStoreController{
         }
         String value = keyValueService.getValue(username, key);
         try {
-            responseObj.put("value", value);
-            response.getWriter().write(responseObj.toString());
+            if(isJSONValid(value)) {
+              //valid json, cool, write it
+              response.getWriter().write(value);
+            }
+            else {
+              //if its not valid JSON (backwards compatible, wrap in a value object
+              JSONObject responseObj = new JSONObject();
+              responseObj.put("value", value);
+              response.getWriter().write(responseObj.toString());
+            }
             response.setContentType("application/json");
             response.setStatus(HttpServletResponse.SC_OK);
         } catch (IOException e) {
@@ -79,22 +88,33 @@ public class KeyValueStoreController{
     
     @RequestMapping(value="/{key}", method=RequestMethod.PUT)
     public @ResponseBody void setKeyValue(HttpServletRequest request, HttpServletResponse response, @PathVariable String key, @RequestBody String valueJson){
+        //security check
         String username = request.getHeader(usernameAttribute);
         if(username == null) {
           logger.error(ACCESS_ERROR);
           response.setStatus(HttpServletResponse.SC_FORBIDDEN);
           return;
         }
-        JSONObject jsonObj = new JSONObject(valueJson);
-        String value = jsonObj.getString("value");
-        keyValueService.setValue(username, key, value);
+        
+        //validation of request
+        if(!isJSONValid(valueJson)) {
+          logger.error("Invalid request, json not valid");
+          response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+          return;
+        }
+        
+        //save
+        keyValueService.setValue(username, key, valueJson);
+
+        //write response
         try {
-          response.getWriter().write(jsonObj.toString());
+          response.getWriter().write(valueJson);
+          response.setContentType("application/json");
+          response.setStatus(HttpServletResponse.SC_OK);
         } catch (IOException e) {
           logger.error("Issues happened while trying to write json", e);
           response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         }
-        response.setStatus(HttpServletResponse.SC_OK);
     }
     
     @RequestMapping(value="/{key}", method=RequestMethod.DELETE)
@@ -103,5 +123,18 @@ public class KeyValueStoreController{
         keyValueService.delete(username, key);
         response.setStatus(HttpServletResponse.SC_OK);
     }
+    
+    private boolean isJSONValid(String test) {
+      try {
+          new JSONObject(test);
+      } catch (JSONException ex) {
+          try {
+              new JSONArray(test);
+          } catch (JSONException ex1) {
+              return false;
+          }
+      }
+      return true;
+  }
     
 }
