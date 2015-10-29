@@ -15,10 +15,10 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import edu.wisc.my.keyvalue.service.IKeyValueService;
+
 
 @Controller
 public class KeyValueStoreController{
@@ -28,6 +28,8 @@ public class KeyValueStoreController{
     private IKeyValueService keyValueService;
     
     private String usernameAttribute;
+    
+    private static final String ACCESS_ERROR="No username set in header, entity manager set properly?";
     
     @Autowired
     public void setKeyValueService(IKeyValueService keyValueService){
@@ -42,11 +44,13 @@ public class KeyValueStoreController{
     @RequestMapping("/")
     public @ResponseBody void index(HttpServletRequest request, HttpServletResponse response){
         try {
-            response.getWriter().write("Hi there");
-            response.setContentType("application/json");
-            response.setStatus(HttpServletResponse.SC_OK);
+          JSONObject responseObj = new JSONObject();
+          responseObj.put("status", "up");
+          response.getWriter().write(responseObj.toString());
+          response.setContentType("application/json");
+          response.setStatus(HttpServletResponse.SC_OK);
         } catch (IOException e) {
-            logger.error("Issues happened while trying to write Hello World", e);
+            logger.error("Issues happened while trying to write Status", e);
             response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         }
     }
@@ -54,10 +58,17 @@ public class KeyValueStoreController{
     
     @RequestMapping(value="/{key}", method=RequestMethod.GET)
     public @ResponseBody void getKeyValue(HttpServletRequest request, HttpServletResponse response, @PathVariable String key){
+        JSONObject responseObj = new JSONObject();
         String username = request.getHeader(usernameAttribute);
+        if(username == null) {
+          logger.error(ACCESS_ERROR);
+          response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+          return;
+        }
         String value = keyValueService.getValue(username, key);
         try {
-            response.getWriter().write("{\"value\":\""+value+"\"}");
+            responseObj.put("value", value);
+            response.getWriter().write(responseObj.toString());
             response.setContentType("application/json");
             response.setStatus(HttpServletResponse.SC_OK);
         } catch (IOException e) {
@@ -69,6 +80,11 @@ public class KeyValueStoreController{
     @RequestMapping(value="/{key}", method=RequestMethod.PUT)
     public @ResponseBody void setKeyValue(HttpServletRequest request, HttpServletResponse response, @PathVariable String key, @RequestBody String valueJson){
         String username = request.getHeader(usernameAttribute);
+        if(username == null) {
+          logger.error(ACCESS_ERROR);
+          response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+          return;
+        }
         JSONObject jsonObj = new JSONObject(valueJson);
         String value = jsonObj.getString("value");
         keyValueService.setValue(username, key, value);
