@@ -17,6 +17,9 @@ target/
 bin/
 dependency-reduced-pom.xml
 
+data
+
+
 # Eclipse Project Files
 
 .classpath
@@ -29,4 +32,3 @@ dependency-reduced-pom.xml
 *.ipr
 *.iws
 *.idea
-
