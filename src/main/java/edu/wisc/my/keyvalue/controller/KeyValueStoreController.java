@@ -12,7 +12,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Controller;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -32,6 +34,9 @@ public class KeyValueStoreController{
     private String usernameAttribute;
     
     private static final String ACCESS_ERROR="No username set in header, entity manager set properly?";
+    
+    @Autowired
+    private Environment env;
     
     @Autowired
     public void setKeyValueService(IKeyValueService keyValueService){
@@ -57,6 +62,51 @@ public class KeyValueStoreController{
         }
     }
     
+    @RequestMapping(value="/{scope}/{key}", method=RequestMethod.GET)
+    public @ResponseBody void getKeyValue(HttpServletRequest request, HttpServletResponse response, @PathVariable String scope, @PathVariable String key) throws IOException{
+      String property = env.getProperty("scope." + scope);
+      
+      //user based key
+      if(property != null) {
+        if(!StringUtils.isEmpty(property)) {
+          String propHeader = request.getHeader(property);
+          if(propHeader != null) {
+            key = propHeader + key;
+          } else {
+            //there was a property for this scope, but the proper header was not set
+            logger.error(ACCESS_ERROR);
+            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+            return;
+          }
+        } else {
+          logger.trace("global hit");
+        }
+      } else {
+        logger.error("Invalid scope of " + scope + " entered.");
+        response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+        return;
+      }
+      
+      String value = keyValueService.getValue(scope, key);
+      try {
+          logger.trace("Got something for scope : " + scope + ", key : " + key + ", value : " + value);
+          if(isJSONValid(value)) {
+            //valid json, cool, write it
+            response.getWriter().write(value);
+            response.setContentType("application/json");
+            response.setStatus(HttpServletResponse.SC_OK);
+          }
+          else {
+            logger.trace("Got nothing for scope : " + scope + ", key : " + key);
+            response.setStatus(HttpServletResponse.SC_NO_CONTENT);
+          }
+          
+      } catch (IOException e) {
+          logger.error("Issues happened while trying to write json", e);
+          response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+      }
+      
+    }
     
     @RequestMapping(value="/{key}", method=RequestMethod.GET)
     public @ResponseBody void getKeyValue(HttpServletRequest request, HttpServletResponse response, @PathVariable String key){
