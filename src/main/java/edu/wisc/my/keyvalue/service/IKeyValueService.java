@@ -6,12 +6,12 @@ import org.springframework.stereotype.Service;
 public interface IKeyValueService{
 
     /**
-     * Returns the value for a given key and username
-     * @param username
+     * Returns the value for a given key and prefix
+     * @param prefix
      * @param key
      * @return may return empty string if nothing exists
      */
-    public String getValue(String username, String key);
+    public String getValue(String prefix, String key);
     
     /**
      * 
@@ -20,8 +20,8 @@ public interface IKeyValueService{
      * @param value
      * @return
      */
-    public String setValue(String username, String key, String value);
+    public String setValue(String prefix, String key, String value);
     
-    public void delete(String username, String key);
+    public void delete(String prefix, String key);
     
 }

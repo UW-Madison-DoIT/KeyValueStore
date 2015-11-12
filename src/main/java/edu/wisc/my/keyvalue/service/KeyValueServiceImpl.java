@@ -17,23 +17,23 @@ public class KeyValueServiceImpl implements IKeyValueService{
     }
 
     @Override
-    public String getValue(String username, String key) {
-        KeyValue keyValue = keyValueRepository.findByKey(username+":"+key);
+    public String getValue(String prefix, String key) {
+        KeyValue keyValue = keyValueRepository.findByKey(prefix+":"+key);
         return keyValue!=null ? keyValue.getValue() : "";
     }
 
     @Override
-    public String setValue(String username, String key, String value) {
+    public String setValue(String prefix, String key, String value) {
         KeyValue keyValue = new KeyValue();
-        keyValue.setKey(username+":"+key);
+        keyValue.setKey(prefix+":"+key);
         keyValue.setValue(value);
         keyValueRepository.save(keyValue);
         return "Saved?";
     }
 
     @Override
-    public void delete(String username, String key) {
-      keyValueRepository.delete(new KeyValue(username+":"+key));
+    public void delete(String prefix, String key) {
+      keyValueRepository.delete(new KeyValue(prefix+":"+key));
     }
     
 }

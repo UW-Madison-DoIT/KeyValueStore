@@ -48,8 +48,12 @@ public class KeyValueStoreController{
       usernameAttribute = attr;
     }
     
+    /**
+     * Status page
+     * @param response the thing to write to
+     */
     @RequestMapping("/")
-    public @ResponseBody void index(HttpServletRequest request, HttpServletResponse response){
+    public @ResponseBody void index(HttpServletResponse response){
         try {
           JSONObject responseObj = new JSONObject();
           responseObj.put("status", "up");
@@ -62,35 +66,86 @@ public class KeyValueStoreController{
         }
     }
     
-    @RequestMapping(value="/{scope}/{key}", method=RequestMethod.GET)
-    public @ResponseBody void getKeyValue(HttpServletRequest request, HttpServletResponse response, @PathVariable String scope, @PathVariable String key) throws IOException{
-      String property = env.getProperty("scope." + scope);
+    @RequestMapping(value="/{scope}/{key}", method=RequestMethod.PUT)
+    public @ResponseBody void putScopedKeyValue(HttpServletRequest request, HttpServletResponse response, @PathVariable String scope, @PathVariable String key, @RequestBody String valueJson) throws IOException {
+      String byUser = env.getRequiredProperty("scope." + scope + ".byUser");
+      boolean scopeUserBased = Boolean.parseBoolean(byUser);
+      logger.trace("scope " + scope + " byUser? " +byUser + " : " + scopeUserBased);
+
+      String username = request.getHeader(usernameAttribute);
       
-      //user based key
-      if(property != null) {
-        if(!StringUtils.isEmpty(property)) {
-          String propHeader = request.getHeader(property);
-          if(propHeader != null) {
-            key = propHeader + key;
-          } else {
-            //there was a property for this scope, but the proper header was not set
-            logger.error(ACCESS_ERROR);
-            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-            return;
-          }
-        } else {
-          logger.trace("global hit");
-        }
+      String prefix = scope;
+      boolean authorized = false;
+      
+      if(!scopeUserBased) {
+        //we are editing a global scoped thing, so we must be an admin
+        String adminGroup = env.getRequiredProperty("scope." + scope + ".admin.group");
+        String groupHeader = env.getRequiredProperty("groupHeaderAttribute");
+        
+        String header = request.getHeader(groupHeader);
+        
+        authorized = header !=null && header.contains(adminGroup);
       } else {
-        logger.error("Invalid scope of " + scope + " entered.");
-        response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-        return;
+        //a user is PUTing on a scoped key that is per attribute
+        String prefixAttr = env.getRequiredProperty("scope." + scope + ".prefixAttribute");
+        String filterHeaderValue = request.getHeader(prefixAttr); 
+        authorized = filterHeaderValue != null;
+        prefix += ":" + filterHeaderValue;
       }
       
+      if(authorized) {
+        //security check success
+        
+        if(!isJSONValid(valueJson)) {
+          logger.error("Invalid request, json not valid");
+          response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+          return;
+        }
+        
+        logger.trace("Setting prefix: " + prefix + " key: " + key);
+        keyValueService.setValue(prefix, key, valueJson);
+        
+        // write response
+        try {
+          response.getWriter().write(valueJson);
+          response.setContentType("application/json");
+          response.setStatus(HttpServletResponse.SC_OK);
+        } catch (IOException e) {
+          logger.error("Issues happened while trying to write json", e);
+          response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+        }
+        
+        logger.info("user " + username + " wrote to scope " + scope + " and key " + key + " with value " + valueJson);
+      } else {
+        logger.error("User " + username + " attempted to PUT to " + scope + " but doesn't have access, shame!");
+        response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+      }
+      
+    }
+    
+    @RequestMapping(value="/{scope}/{key}", method=RequestMethod.GET)
+    public @ResponseBody void getScopedKeyValue(HttpServletRequest request, HttpServletResponse response, @PathVariable String scope, @PathVariable String key) throws IOException {
+      boolean scopeUserBased = Boolean.parseBoolean(env.getRequiredProperty("scope." + scope + ".byUser"));
+      
+      if(scopeUserBased) {
+        String property = env.getProperty("scope." + scope + ".prefixAttribute");
+        String propHeaderValue = request.getHeader(property);
+        if(propHeaderValue != null) {
+          scope += ":" + propHeaderValue;
+        } else {
+          //there was a property for this scope, but the proper header was not set
+          logger.error(ACCESS_ERROR);
+          response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+          return;
+        }
+      } else {
+        logger.trace("global hit");
+      }
+      logger.trace("Searching for prefix " + scope + " key: " + key);
       String value = keyValueService.getValue(scope, key);
       try {
-          logger.trace("Got something for scope : " + scope + ", key : " + key + ", value : " + value);
           if(isJSONValid(value)) {
+            logger.trace("Got something for scope : " + scope + ", key : " + key + ", value : " + value);
             //valid json, cool, write it
             response.getWriter().write(value);
             response.setContentType("application/json");
@@ -98,7 +153,7 @@ public class KeyValueStoreController{
           }
           else {
             logger.trace("Got nothing for scope : " + scope + ", key : " + key);
-            response.setStatus(HttpServletResponse.SC_NO_CONTENT);
+            response.setStatus(HttpServletResponse.SC_OK);
           }
           
       } catch (IOException e) {
