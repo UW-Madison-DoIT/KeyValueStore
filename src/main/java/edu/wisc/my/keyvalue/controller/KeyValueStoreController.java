@@ -26,28 +26,28 @@ import edu.wisc.my.keyvalue.service.IKeyValueService;
 
 @Controller
 public class KeyValueStoreController{
-    
+
     protected final Logger logger = LoggerFactory.getLogger(getClass());
-    
+
     private IKeyValueService keyValueService;
-    
+
     private String usernameAttribute;
-    
+
     private static final String ACCESS_ERROR="No username set in header, entity manager set properly?";
-    
+
     @Autowired
     private Environment env;
-    
+
     @Autowired
     public void setKeyValueService(IKeyValueService keyValueService){
         this.keyValueService = keyValueService;
     }
-    
+
     @Value("${usernameAttribute}")
     public void setUsernameAttr(String attr) {
       usernameAttribute = attr;
     }
-    
+
     /**
      * Status page
      * @param response the thing to write to
@@ -65,7 +65,7 @@ public class KeyValueStoreController{
             response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         }
     }
-    
+
     @RequestMapping(value="/{scope}/{key}", method=RequestMethod.PUT)
     public @ResponseBody void putScopedKeyValue(HttpServletRequest request, HttpServletResponse response, @PathVariable String scope, @PathVariable String key, @RequestBody String valueJson) throws IOException {
       String byUser = env.getRequiredProperty("scope." + scope + ".byUser");
@@ -73,38 +73,38 @@ public class KeyValueStoreController{
       logger.trace("scope " + scope + " byUser? " +byUser + " : " + scopeUserBased);
 
       String username = request.getHeader(usernameAttribute);
-      
+
       String prefix = scope;
       boolean authorized = false;
-      
+
       if(!scopeUserBased) {
         //we are editing a global scoped thing, so we must be an admin
         String adminGroup = env.getRequiredProperty("scope." + scope + ".admin.group");
         String groupHeader = env.getRequiredProperty("groupHeaderAttribute");
-        
+
         String header = request.getHeader(groupHeader);
-        
+
         authorized = header !=null && header.contains(adminGroup);
       } else {
         //a user is PUTing on a scoped key that is per attribute
         String prefixAttr = env.getRequiredProperty("scope." + scope + ".prefixAttribute");
-        String filterHeaderValue = request.getHeader(prefixAttr); 
+        String filterHeaderValue = request.getHeader(prefixAttr);
         authorized = filterHeaderValue != null;
         prefix += ":" + filterHeaderValue;
       }
-      
+
       if(authorized) {
         //security check success
-        
+
         if(!isJSONValid(valueJson)) {
           logger.error("Invalid request, json not valid");
           response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
           return;
         }
-        
+
         logger.trace("Setting prefix: " + prefix + " key: " + key);
         keyValueService.setValue(prefix, key, valueJson);
-        
+
         // write response
         try {
           response.getWriter().write(valueJson);
@@ -114,19 +114,19 @@ public class KeyValueStoreController{
           logger.error("Issues happened while trying to write json", e);
           response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         }
-        
+
         logger.info("user " + username + " wrote to scope " + scope + " and key " + key + " with value " + valueJson);
       } else {
         logger.error("User " + username + " attempted to PUT to " + scope + " but doesn't have access, shame!");
         response.setStatus(HttpServletResponse.SC_FORBIDDEN);
       }
-      
+
     }
-    
+
     @RequestMapping(value="/{scope}/{key}", method=RequestMethod.GET)
     public @ResponseBody void getScopedKeyValue(HttpServletRequest request, HttpServletResponse response, @PathVariable String scope, @PathVariable String key) throws IOException {
       boolean scopeUserBased = Boolean.parseBoolean(env.getRequiredProperty("scope." + scope + ".byUser"));
-      
+
       if(scopeUserBased) {
         String property = env.getProperty("scope." + scope + ".prefixAttribute");
         String propHeaderValue = request.getHeader(property);
@@ -153,16 +153,16 @@ public class KeyValueStoreController{
           }
           else {
             logger.trace("Got nothing for scope : " + scope + ", key : " + key);
-            response.setStatus(HttpServletResponse.SC_OK);
+            response.setStatus(HttpServletResponse.SC_NOT_FOUND);
           }
-          
+
       } catch (IOException e) {
           logger.error("Issues happened while trying to write json", e);
           response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
       }
-      
+
     }
-    
+
     @RequestMapping(value="/{key}", method=RequestMethod.GET)
     public @ResponseBody void getKeyValue(HttpServletRequest request, HttpServletResponse response, @PathVariable String key){
         String username = request.getHeader(usernameAttribute);
@@ -190,7 +190,7 @@ public class KeyValueStoreController{
             response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         }
     }
-    
+
     @RequestMapping(value="/{key}", method=RequestMethod.PUT)
     public @ResponseBody void setKeyValue(HttpServletRequest request, HttpServletResponse response, @PathVariable String key, @RequestBody String valueJson){
         //security check
@@ -200,14 +200,14 @@ public class KeyValueStoreController{
           response.setStatus(HttpServletResponse.SC_FORBIDDEN);
           return;
         }
-        
+
         //validation of request
         if(!isJSONValid(valueJson)) {
           logger.error("Invalid request, json not valid");
           response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
           return;
         }
-        
+
         //save
         keyValueService.setValue(username, key, valueJson);
 
@@ -221,14 +221,14 @@ public class KeyValueStoreController{
           response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         }
     }
-    
+
     @RequestMapping(value="/{key}", method=RequestMethod.DELETE)
     public @ResponseBody void delete(HttpServletRequest request, HttpServletResponse response, @PathVariable String key){
         String username = request.getHeader(usernameAttribute);
         keyValueService.delete(username, key);
         response.setStatus(HttpServletResponse.SC_OK);
     }
-    
+
     private boolean isJSONValid(String test) {
       try {
           new JSONObject(test);
@@ -241,5 +241,5 @@ public class KeyValueStoreController{
       }
       return true;
   }
-    
+
 }
