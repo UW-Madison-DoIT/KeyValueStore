@@ -70,7 +70,7 @@ public class KeyValueStoreController{
     public @ResponseBody void putScopedKeyValue(HttpServletRequest request, HttpServletResponse response, @PathVariable String scope, @PathVariable String key, @RequestBody String valueJson) throws IOException {
       String byUser = env.getRequiredProperty("scope." + scope + ".byUser");
       boolean scopeUserBased = Boolean.parseBoolean(byUser);
-      logger.trace("scope " + scope + " byUser? " +byUser + " : " + scopeUserBased);
+      logger.trace("scope {} byUser? {} : {}.", scope, byUser, scopeUserBased);
 
       String username = request.getHeader(usernameAttribute);
 
