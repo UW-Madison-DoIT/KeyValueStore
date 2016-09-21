@@ -1,7 +1,9 @@
 package edu.wisc.my.keyvalue.model;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.Lob;
 
 
 @Entity
@@ -16,6 +18,8 @@ public class KeyValue{
     @Id
     private String key;
     
+    @Lob
+    @Column(length=6000)
     private String value;
 
     public String getKey() {

@@ -53,7 +53,7 @@
       <appender-ref ref="LOG"/>
   </root>
 
-  <logger name="edu.wisc" additivity="false" level="DEBUG">
+  <logger name="edu.wisc" additivity="false" level="TRACE">
       <appender-ref ref="LOG"/>
   </logger>
 </configuration>
