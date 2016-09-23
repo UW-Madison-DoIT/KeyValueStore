@@ -23,13 +23,14 @@ public class KeyValueStoreController{
     protected final Logger logger = LoggerFactory.getLogger(getClass());
 
     private IKeyValueService keyValueService;
+    private Environment env;
 
     private String usernameAttribute;
 
     private static final String ACCESS_ERROR="No username set in header, entity manager set properly?";
 
     @Autowired
-    private Environment env;
+    public void setEnv(Environment env) { this.env = env; }
 
     @Autowired
     public void setKeyValueService(IKeyValueService keyValueService){
@@ -112,7 +113,7 @@ public class KeyValueStoreController{
                 writeResponse(response, value);
             } else {
                 logger.trace("Got nothing for scope : {}, key : {}", scope, key);
-                response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+                response.setStatus(HttpServletResponse.SC_NO_CONTENT);
             }
         } catch (SecurityException se) {
             logger.error("Access denied", se);
