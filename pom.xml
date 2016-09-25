@@ -11,13 +11,13 @@
       <artifactId>spring-boot-starter-parent</artifactId>
       <version>1.2.5.RELEASE</version>
     </parent>
-    
+
     <scm>
         <connection>scm:git:git://github.com:UW-Madison-DoIT/KeyValueStore.git</connection>
         <developerConnection>scm:git:git@github.com:UW-Madison-DoIT/KeyValueStore.git</developerConnection>
         <url>https://github.com/UW-Madison-DoIT/KeyValueStore</url>
     </scm>
-    
+
     <packaging>war</packaging>
 
     <repositories>
@@ -31,7 +31,7 @@
         <name>JBoss Maven Release Repository</name>
         <url>https://repository.jboss.org/nexus/content/repositories/releases</url>
       </repository>
-      
+
     </repositories>
     <pluginRepositories>
       <pluginRepository>
@@ -71,6 +71,40 @@
         <artifactId>ojdbc6</artifactId>
         <version>11.2.0.3</version>
       </dependency>  -->
+      <dependency>
+        <groupId>org.codehaus.groovy</groupId>
+        <artifactId>groovy-test</artifactId>
+        <scope>test</scope>
+        <version>2.4.7</version>
+      </dependency>
+      <dependency>
+        <groupId>org.mockito</groupId>
+        <artifactId>mockito-core</artifactId>
+        <version>1.10.19</version>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.springframework</groupId>
+        <artifactId>spring-test</artifactId>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>junit</groupId>
+        <artifactId>junit</artifactId>
+        <scope>test</scope>
+      </dependency>
+
+      <dependency>
+        <groupId>org.skyscreamer</groupId>
+        <artifactId>jsonassert</artifactId>
+        <version>1.3.0</version>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.codehaus.groovy</groupId>
+        <artifactId>groovy-all</artifactId>
+        <version>2.4.7</version>
+      </dependency>
     </dependencies>
 
     <build>
@@ -86,14 +120,37 @@
           </configuration>
         </plugin>
         <plugin>
-        <artifactId>maven-war-plugin</artifactId>
-        <configuration>
-          <attachClasses>true</attachClasses>
-        </configuration>
-      </plugin>
+          <artifactId>maven-war-plugin</artifactId>
+          <configuration>
+            <attachClasses>true</attachClasses>
+          </configuration>
+        </plugin>
+        <plugin>
+          <groupId>org.codehaus.gmavenplus</groupId>
+          <artifactId>gmavenplus-plugin</artifactId>
+          <version>1.5</version>
+          <executions>
+            <execution>
+              <goals>
+                <goal>addSources</goal>
+                <goal>addTestSources</goal>
+                <goal>generateStubs</goal>
+                <goal>compile</goal>
+                <goal>testGenerateStubs</goal>
+                <goal>testCompile</goal>
+                <goal>removeStubs</goal>
+                <goal>removeTestStubs</goal>
+              </goals>
+            </execution>
+          </executions>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-compiler-plugin</artifactId>
+        </plugin>
       </plugins>
     </build>
-    
+
     <distributionManagement>
       <snapshotRepository>
         <id>code.doit-uw-snapshots</id>
@@ -103,6 +160,6 @@
         <id>code.doit-uw-releases</id>
         <url>https://code.doit.wisc.edu/maven/content/repositories/uw-releases/</url>
       </repository>
-      
+
     </distributionManagement>
 </project>

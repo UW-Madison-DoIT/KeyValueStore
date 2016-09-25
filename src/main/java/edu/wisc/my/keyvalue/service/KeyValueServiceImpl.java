@@ -16,8 +16,9 @@ import javax.servlet.http.HttpServletRequest;
 public class KeyValueServiceImpl implements IKeyValueService {
 
     protected final Logger logger = LoggerFactory.getLogger(getClass());
-    
+
     private KeyValueRepository keyValueRepository;
+    private Environment env;
     private String usernameAttribute;
 
     @Value("${usernameAttribute}")
@@ -26,8 +27,8 @@ public class KeyValueServiceImpl implements IKeyValueService {
     }
 
     @Autowired
-    private Environment env;
-    
+    public void setEnv(Environment env) { this.env = env; }
+
     @Autowired
     public void setKeyValueRepository(KeyValueRepository keyValueRepository){
         this.keyValueRepository = keyValueRepository;
@@ -65,8 +66,14 @@ public class KeyValueServiceImpl implements IKeyValueService {
     }
 
     @Override
-    public boolean isByUser(String scope){
-        String byUserString = env.getRequiredProperty("scope." + scope + ".byUser");
+    public boolean isByUser(String scope) {
+      String byUserString = "";
+      if(scope != null) {
+        byUserString = env.getRequiredProperty("scope." + scope + ".byUser");
+      } else {
+        byUserString = "true";
+      }
+
         logger.trace("scope {} byUser? {}.", scope, byUserString);
         return byUserString != null && Boolean.parseBoolean(byUserString);
     }
@@ -74,11 +81,13 @@ public class KeyValueServiceImpl implements IKeyValueService {
     @Override
     public boolean isAuthorized(String scope, HttpServletRequest request, METHOD method) {
         if(request.getHeader(usernameAttribute) == null) {
-
             return false;
         }
 
-        if(isByUser(scope)){
+        if(scope == null) {
+          //all base keys are authorized, and are all username scoped.
+          return true;
+        } else if(isByUser(scope)){
             String prefixAttr = env.getRequiredProperty("scope." + scope + ".prefixAttribute");
             String filterHeaderValue = request.getHeader(prefixAttr);
             return filterHeaderValue != null;
@@ -96,7 +105,12 @@ public class KeyValueServiceImpl implements IKeyValueService {
     }
 
     private String getPrefix (HttpServletRequest request, String scope) {
-        return isByUser(scope) ? scope + request.getHeader(usernameAttribute) : scope;
+      if(isByUser(scope)) {
+        String username = request.getHeader(usernameAttribute);
+        return scope != null ? scope +":"+ username : username;
+      } else {
+        return scope;
+      }
     }
 
 }
