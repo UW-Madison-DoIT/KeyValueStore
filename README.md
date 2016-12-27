@@ -1,6 +1,7 @@
 # Key Value Store
 
 [![Build Status](https://travis-ci.org/UW-Madison-DoIT/KeyValueStore.svg)](https://travis-ci.org/UW-Madison-DoIT/KeyValueStore)
+[![Dependency Status](https://dependencyci.com/github/UW-Madison-DoIT/KeyValueStore/badge)](https://dependencyci.com/github/UW-Madison-DoIT/KeyValueStore)
 
 A separate service to enable key value storage for MyUW applications
 
