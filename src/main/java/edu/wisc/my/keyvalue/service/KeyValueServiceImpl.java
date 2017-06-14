@@ -1,5 +1,6 @@
 package edu.wisc.my.keyvalue.service;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -80,7 +81,7 @@ public class KeyValueServiceImpl implements IKeyValueService {
 
     @Override
     public boolean isAuthorized(String scope, HttpServletRequest request, METHOD method) {
-        if(request.getHeader(usernameAttribute) == null) {
+        if(StringUtils.isBlank(request.getHeader(usernameAttribute))) {
             return false;
         }
 

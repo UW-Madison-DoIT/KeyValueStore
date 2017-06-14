@@ -60,6 +60,32 @@ class KeyValueServiceTest {
     String response = keyValueService.getValue(request, "global", "someKey");
     assertEquals(ret.getValue(), response);
   }
+  
+  @Test(expected=SecurityException.class)
+  void test_no_user_name_in_header_get(){ 
+    MockHttpServletRequest request = new MockHttpServletRequest(HttpMethod.GET.toString(), "")
+    keyValueService.getValue(request, "global", "someKey")
+  }
+  
+  @Test(expected=SecurityException.class)
+  void test_blank_user_name_in_header_get(){ 
+    MockHttpServletRequest request = new MockHttpServletRequest(HttpMethod.GET.toString(), "")
+    request.addHeader("uid", "  ")
+    keyValueService.getValue(request, "global", "someKey")
+  }
+  
+    @Test(expected=SecurityException.class)
+  void test_no_user_name_in_header_put(){ 
+    MockHttpServletRequest request = new MockHttpServletRequest(HttpMethod.PUT.toString(), "")
+    keyValueService.getValue(request, "global", "someKey")
+  }
+  
+  @Test(expected=SecurityException.class)
+  void test_blank_user_name_in_header_put(){ 
+    MockHttpServletRequest request = new MockHttpServletRequest(HttpMethod.PUT.toString(), "")
+    request.addHeader("uid", "  ")
+    keyValueService.getValue(request, "global", "someKey")
+  }
 
   @Test(expected=SecurityException.class)
   void test_global_put_invalid() {
