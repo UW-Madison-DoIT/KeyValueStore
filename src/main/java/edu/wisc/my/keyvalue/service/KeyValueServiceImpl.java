@@ -21,42 +21,19 @@ public class KeyValueServiceImpl implements IKeyValueService {
     private KeyValueRepository keyValueRepository;
     private Environment env;
     private String usernameAttribute;
-    private String additionalAttributes;
-    private String[] allAttributes;
+     private String[] allAttributes;
 
     @Value("${usernameAttribute}")
     public void setUsernameAttr(String attr) {
         usernameAttribute = attr;
-    }
-
-    @Value("${additionalAttributes}")
-    public void setAdditionalAttributes(String attr) {
-        //Additional attributes are stored in a comma delimited string.
-        //If additional attributes are present, this method constructs an array with the usernameAttr as the first element,
-        // and additional elements following in order. 
-
-        //If no additional elements are present, this method will constuct a one-element array 
-        //consisting of the usernameAttr.
-        if(StringUtils.isNotBlank(attr)){
-            additionalAttributes = attr;
-            String[] tempArray = additionalAttributes.split(",");
-            allAttributes = new String[tempArray.length +1];
-            allAttributes[0] = usernameAttribute;
-            for(int x=1;x<tempArray.length+1;x++){
-                allAttributes[x] = tempArray[x-1].trim();
-            }
-        }else{
-            allAttributes = new String[1];
-            allAttributes[0] = usernameAttribute;
+        String[] tempArray = usernameAttribute.split(",");
+        allAttributes = new String[tempArray.length];
+        for(int x=0;x<tempArray.length;x++){
+          allAttributes[x] = tempArray[x].trim();
         }
     }
 
     private String[] getAllAttributes(){
-        if(this.allAttributes==null){
-            this.allAttributes=new String[1];
-            this.allAttributes[0]=usernameAttribute;
-        }
-
         return this.allAttributes;
     }
 
@@ -66,7 +43,6 @@ public class KeyValueServiceImpl implements IKeyValueService {
                 return attribute;
             }
         }
-
         return null;
     }
 

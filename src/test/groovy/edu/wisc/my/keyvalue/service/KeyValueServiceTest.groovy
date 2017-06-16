@@ -31,13 +31,11 @@ class KeyValueServiceTest {
   private MockEnvironment env = new MockEnvironment();
 
   final String usernameAttribute = "uid";
-  final String additionalAttributes = "sysid,dummy,tertiary";
 
   @Before()
   void setup() {
 
     env.setProperty("usernameAttribute","uid");
-    env.setProperty("additionalAttributes","sysid,dummy,tertiary");
     env.setProperty("groupHeaderAttribute", "ismemberof");
 
     env.setProperty("scope.global.byUser", "false");
@@ -48,7 +46,6 @@ class KeyValueServiceTest {
 
     keyValueService.setKeyValueRepository(keyValueRepository);
     keyValueService.setUsernameAttr(usernameAttribute);
-    keyValueService.setAdditionalAttributes(additionalAttributes);
     keyValueService.setEnv(env);
   }
 
@@ -105,17 +102,9 @@ class KeyValueServiceTest {
 
   @Test
   void test_additional_attributes(){
-    keyValueService.setUsernameAttr("NONE");
-      MockHttpServletRequest request = new MockHttpServletRequest(HttpMethod.GET.toString(), "")
-    request.addHeader("dummy", "reed")
-    keyValueService.getValue(request, "global", "someKey")
-  }
-
-    @Test
-  void test_null_additional_attributes(){
-    keyValueService.setAdditionalAttributes(null);
+    keyValueService.setUsernameAttr("NONE, dummy");
     MockHttpServletRequest request = new MockHttpServletRequest(HttpMethod.GET.toString(), "")
-    request.addHeader("uid", "reed")
+    request.addHeader("dummy", "reed")
     keyValueService.getValue(request, "global", "someKey")
   }
 
