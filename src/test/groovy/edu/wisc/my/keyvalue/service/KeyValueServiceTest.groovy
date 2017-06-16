@@ -22,9 +22,6 @@ import static org.mockito.Mockito.when
 import static org.mockito.Mockito.any
 import static org.junit.Assert.assertEquals
 
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
-
 @RunWith(MockitoJUnitRunner.class)
 class KeyValueServiceTest {
   protected final Logger logger = LoggerFactory.getLogger(getClass());
