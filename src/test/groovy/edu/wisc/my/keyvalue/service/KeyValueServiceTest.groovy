@@ -24,9 +24,7 @@ import static org.junit.Assert.assertEquals
 
 @RunWith(MockitoJUnitRunner.class)
 class KeyValueServiceTest {
-  protected final Logger logger = LoggerFactory.getLogger(getClass());
-
-
+ 
   @InjectMocks KeyValueServiceImpl keyValueService = new KeyValueServiceImpl();
 
   @Mock KeyValueRepository keyValueRepository;
