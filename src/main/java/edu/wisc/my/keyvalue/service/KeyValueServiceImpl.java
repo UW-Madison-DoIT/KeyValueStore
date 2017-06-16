@@ -43,14 +43,11 @@ public class KeyValueServiceImpl implements IKeyValueService {
             allAttributes = new String[tempArray.length +1];
             allAttributes[0] = usernameAttribute;
             for(int x=1;x<tempArray.length+1;x++){
-                allAttributes[x] = tempArray[x-1];
+                allAttributes[x] = tempArray[x-1].trim();
             }
         }else{
             allAttributes = new String[1];
             allAttributes[0] = usernameAttribute;
-        }
-        for(String at:allAttributes){
-            logger.trace("Attribute  = " + at);
         }
     }
 
@@ -65,7 +62,6 @@ public class KeyValueServiceImpl implements IKeyValueService {
 
     private String getAttribute(HttpServletRequest request){
         for(String attribute:getAllAttributes()){
-            logger.trace(attribute);
             if(StringUtils.isNotBlank(request.getHeader(attribute))){
                 return attribute;
             }
