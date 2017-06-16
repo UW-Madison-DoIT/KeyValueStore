@@ -21,10 +21,57 @@ public class KeyValueServiceImpl implements IKeyValueService {
     private KeyValueRepository keyValueRepository;
     private Environment env;
     private String usernameAttribute;
+    private String additionalAttributes;
+    private String[] allAttributes;
 
     @Value("${usernameAttribute}")
     public void setUsernameAttr(String attr) {
         usernameAttribute = attr;
+    }
+
+    @Value("${additionalAttributes}")
+    public void setAdditionalAttributes(String attr) {
+        //Additional attributes are stored in a comma delimited string.
+        //If additional attributes are present, this method constructs an array with the usernameAttr as the first element,
+        // and additional elements following in order. 
+
+        //If no additional elements are present, this method will constuct a one-element array 
+        //consisting of the usernameAttr.
+        if(StringUtils.isNotBlank(attr)){
+            additionalAttributes = attr;
+            String[] tempArray = additionalAttributes.split(",");
+            allAttributes = new String[tempArray.length +1];
+            allAttributes[0] = usernameAttribute;
+            for(int x=1;x<tempArray.length+1;x++){
+                allAttributes[x] = tempArray[x-1];
+            }
+        }else{
+            allAttributes = new String[1];
+            allAttributes[0] = usernameAttribute;
+        }
+        for(String at:allAttributes){
+            logger.trace("Attribute  = " + at);
+        }
+    }
+
+    private String[] getAllAttributes(){
+        if(this.allAttributes==null){
+            this.allAttributes=new String[1];
+            this.allAttributes[0]=usernameAttribute;
+        }
+
+        return this.allAttributes;
+    }
+
+    private String getAttribute(HttpServletRequest request){
+        for(String attribute:getAllAttributes()){
+            logger.trace(attribute);
+            if(StringUtils.isNotBlank(request.getHeader(attribute))){
+                return attribute;
+            }
+        }
+
+        return null;
     }
 
     @Autowired
@@ -74,14 +121,13 @@ public class KeyValueServiceImpl implements IKeyValueService {
       } else {
         byUserString = "true";
       }
-
         logger.trace("scope {} byUser? {}.", scope, byUserString);
         return byUserString != null && Boolean.parseBoolean(byUserString);
     }
 
     @Override
     public boolean isAuthorized(String scope, HttpServletRequest request, METHOD method) {
-        if(StringUtils.isBlank(request.getHeader(usernameAttribute))) {
+        if(getAttribute(request)==null){
             return false;
         }
 
@@ -107,7 +153,7 @@ public class KeyValueServiceImpl implements IKeyValueService {
 
     private String getPrefix (HttpServletRequest request, String scope) {
       if(isByUser(scope)) {
-        String username = request.getHeader(usernameAttribute);
+        String username = request.getHeader(getAttribute(request));
         return scope != null ? scope +":"+ username : username;
       } else {
         return scope;

@@ -22,8 +22,13 @@ import static org.mockito.Mockito.when
 import static org.mockito.Mockito.any
 import static org.junit.Assert.assertEquals
 
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
+
 @RunWith(MockitoJUnitRunner.class)
 class KeyValueServiceTest {
+  protected final Logger logger = LoggerFactory.getLogger(getClass());
+
 
   @InjectMocks KeyValueServiceImpl keyValueService = new KeyValueServiceImpl();
 
@@ -31,11 +36,13 @@ class KeyValueServiceTest {
   private MockEnvironment env = new MockEnvironment();
 
   final String usernameAttribute = "uid";
+  final String additionalAttributes = "sysid,dummy,tertiary";
 
   @Before()
   void setup() {
 
     env.setProperty("usernameAttribute","uid");
+    env.setProperty("additionalAttributes","sysid,dummy,tertiary");
     env.setProperty("groupHeaderAttribute", "ismemberof");
 
     env.setProperty("scope.global.byUser", "false");
@@ -46,8 +53,11 @@ class KeyValueServiceTest {
 
     keyValueService.setKeyValueRepository(keyValueRepository);
     keyValueService.setUsernameAttr(usernameAttribute);
+    keyValueService.setAdditionalAttributes(additionalAttributes);
     keyValueService.setEnv(env);
   }
+
+
 
   @Test
   void test_global_get_valid() {
@@ -96,6 +106,22 @@ class KeyValueServiceTest {
 
     keyValueService.setValue(request, scope, key, value);
     fail("Should not get here")
+  }
+
+  @Test
+  void test_additional_attributes(){
+    keyValueService.setUsernameAttr("NONE");
+      MockHttpServletRequest request = new MockHttpServletRequest(HttpMethod.GET.toString(), "")
+    request.addHeader("dummy", "reed")
+    keyValueService.getValue(request, "global", "someKey")
+  }
+
+    @Test
+  void test_null_additional_attributes(){
+    keyValueService.setAdditionalAttributes(null);
+    MockHttpServletRequest request = new MockHttpServletRequest(HttpMethod.GET.toString(), "")
+    request.addHeader("uid", "reed")
+    keyValueService.getValue(request, "global", "someKey")
   }
 
   @Test()
