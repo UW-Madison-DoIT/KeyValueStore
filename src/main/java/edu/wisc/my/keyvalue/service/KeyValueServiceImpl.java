@@ -21,10 +21,29 @@ public class KeyValueServiceImpl implements IKeyValueService {
     private KeyValueRepository keyValueRepository;
     private Environment env;
     private String usernameAttribute;
+     private String[] allAttributes;
 
     @Value("${usernameAttribute}")
     public void setUsernameAttr(String attr) {
         usernameAttribute = attr;
+        String[] tempArray = usernameAttribute.split(",");
+        allAttributes = new String[tempArray.length];
+        for(int x=0;x<tempArray.length;x++){
+          allAttributes[x] = tempArray[x].trim();
+        }
+    }
+
+    private String[] getAllAttributes(){
+        return this.allAttributes;
+    }
+
+    private String getAttribute(HttpServletRequest request){
+        for(String attribute:getAllAttributes()){
+            if(StringUtils.isNotBlank(request.getHeader(attribute))){
+                return attribute;
+            }
+        }
+        return null;
     }
 
     @Autowired
@@ -74,14 +93,13 @@ public class KeyValueServiceImpl implements IKeyValueService {
       } else {
         byUserString = "true";
       }
-
         logger.trace("scope {} byUser? {}.", scope, byUserString);
         return byUserString != null && Boolean.parseBoolean(byUserString);
     }
 
     @Override
     public boolean isAuthorized(String scope, HttpServletRequest request, METHOD method) {
-        if(StringUtils.isBlank(request.getHeader(usernameAttribute))) {
+        if(getAttribute(request)==null){
             return false;
         }
 
@@ -107,7 +125,7 @@ public class KeyValueServiceImpl implements IKeyValueService {
 
     private String getPrefix (HttpServletRequest request, String scope) {
       if(isByUser(scope)) {
-        String username = request.getHeader(usernameAttribute);
+        String username = request.getHeader(getAttribute(request));
         return scope != null ? scope +":"+ username : username;
       } else {
         return scope;

@@ -24,7 +24,7 @@ import static org.junit.Assert.assertEquals
 
 @RunWith(MockitoJUnitRunner.class)
 class KeyValueServiceTest {
-
+ 
   @InjectMocks KeyValueServiceImpl keyValueService = new KeyValueServiceImpl();
 
   @Mock KeyValueRepository keyValueRepository;
@@ -48,6 +48,8 @@ class KeyValueServiceTest {
     keyValueService.setUsernameAttr(usernameAttribute);
     keyValueService.setEnv(env);
   }
+
+
 
   @Test
   void test_global_get_valid() {
@@ -96,6 +98,14 @@ class KeyValueServiceTest {
 
     keyValueService.setValue(request, scope, key, value);
     fail("Should not get here")
+  }
+
+  @Test
+  void test_additional_attributes(){
+    keyValueService.setUsernameAttr("NONE, dummy");
+    MockHttpServletRequest request = new MockHttpServletRequest(HttpMethod.GET.toString(), "")
+    request.addHeader("dummy", "reed")
+    keyValueService.getValue(request, "global", "someKey")
   }
 
   @Test()
