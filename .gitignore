@@ -16,7 +16,7 @@ build/
 target/
 bin/
 dependency-reduced-pom.xml
-
+META-INF/
 data
 
 
@@ -32,3 +32,6 @@ data
 *.ipr
 *.iws
 *.idea
+
+# Netbeans Files
+nb-configuration.xml
